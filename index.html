@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Random23 — Daily Knowledge Draw</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#17242a;
+    --ink-soft:#233238;
+    --ink-line:#3a4b52;
+    --paper:#ede3cb;
+    --paper-dim:#e0d3ac;
+    --paper-shadow:#c9b98c;
+    --brass:#b08d57;
+    --brass-light:#d3ae78;
+    --rust:#9c4b3f;
+    --moss:#5f7a68;
+    --ink-text:#20302f;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--ink);
+    background-image:
+      radial-gradient(ellipse at top left, rgba(255,255,255,0.05), transparent 55%),
+      radial-gradient(ellipse at bottom right, rgba(255,255,255,0.03), transparent 50%);
+    min-height:100vh;
+    font-family:'Inter',sans-serif;
+    color:var(--paper);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:32px 18px 60px;
+  }
+  header{
+    text-align:center;
+    margin-bottom:30px;
+  }
+  .eyebrow{
+    font-family:'Space Mono',monospace;
+    font-size:11px;
+    letter-spacing:.32em;
+    text-transform:uppercase;
+    color:var(--brass-light);
+    margin-bottom:10px;
+  }
+  h1{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:clamp(38px,7vw,64px);
+    margin:0;
+    letter-spacing:-0.01em;
+    line-height:1;
+  }
+  h1 .accent{
+    font-style:italic;
+    font-weight:400;
+    color:var(--brass-light);
+  }
+  .tagline{
+    font-family:'Space Mono',monospace;
+    font-size:13px;
+    color:#a9b8ba;
+    margin-top:12px;
+    max-width:480px;
+  }
+
+  .catalog{
+    display:flex;
+    width:100%;
+    max-width:920px;
+    gap:0;
+    align-items:stretch;
+  }
+
+  /* ---- Drawer index (sidebar) ---- */
+  .drawers{
+    display:flex;
+    flex-direction:column;
+    background:var(--ink-soft);
+    border:1px solid var(--ink-line);
+    border-right:none;
+    border-radius:10px 0 0 10px;
+    min-width:172px;
+    padding:10px 0;
+    overflow-y:auto;
+    max-height:560px;
+  }
+  .drawer-label{
+    font-family:'Space Mono',monospace;
+    font-size:10px;
+    letter-spacing:.2em;
+    text-transform:uppercase;
+    color:#7d9195;
+    padding:8px 16px 6px;
+  }
+  .drawer-btn{
+    font-family:'Space Mono',monospace;
+    font-size:12.5px;
+    text-align:left;
+    background:none;
+    border:none;
+    color:#c6d2d3;
+    padding:9px 16px;
+    cursor:pointer;
+    border-left:3px solid transparent;
+    transition:background .15s ease,color .15s ease,border-color .15s ease;
+    line-height:1.4;
+  }
+  .drawer-btn:hover{ background:rgba(255,255,255,0.04); color:var(--paper); }
+  .drawer-btn.active{
+    background:rgba(176,141,87,0.14);
+    border-left-color:var(--brass);
+    color:var(--brass-light);
+  }
+  .drawer-count{
+    float:right;
+    opacity:.55;
+    font-size:11px;
+  }
+
+  /* ---- Main card stage ---- */
+  .stage{
+    flex:1;
+    background:var(--ink-soft);
+    border:1px solid var(--ink-line);
+    border-radius:0 10px 10px 0;
+    padding:38px 40px 32px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    min-height:560px;
+    position:relative;
+  }
+
+  .rod{
+    position:absolute;
+    top:0; left:50%;
+    transform:translateX(-50%);
+    width:70%;
+    height:3px;
+    background:linear-gradient(90deg,transparent,var(--brass) 15%,var(--brass) 85%,transparent);
+    opacity:.5;
+  }
+
+  .card{
+    background:var(--paper);
+    color:var(--ink-text);
+    width:100%;
+    max-width:460px;
+    min-height:340px;
+    border-radius:3px;
+    box-shadow:0 18px 40px rgba(0,0,0,0.35), 0 2px 0 var(--paper-shadow);
+    padding:34px 32px 28px;
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    background-image: repeating-linear-gradient(180deg, transparent, transparent 27px, rgba(60,80,70,0.07) 28px);
+  }
+  .card::before{
+    content:'';
+    position:absolute;
+    top:0; left:50%;
+    transform:translateX(-50%);
+    width:26px; height:26px;
+    background:var(--ink-soft);
+    border:3px solid var(--ink);
+    border-radius:50%;
+    margin-top:-13px;
+    box-shadow:0 0 0 3px var(--paper) inset;
+  }
+  .card-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    font-family:'Space Mono',monospace;
+    font-size:11px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--moss);
+    margin-bottom:18px;
+    margin-top:6px;
+  }
+  .card-cat{
+    background:rgba(95,122,104,0.14);
+    padding:4px 10px;
+    border-radius:3px;
+    border:1px solid rgba(95,122,104,0.35);
+  }
+  .card-no{ color:var(--paper-shadow); font-weight:700; color:#8d7a4f; }
+
+  .card-title{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:27px;
+    line-height:1.15;
+    margin:0 0 16px;
+  }
+  .card-prompt{
+    font-family:'Space Mono',monospace;
+    font-size:14px;
+    line-height:1.65;
+    color:#3b4a41;
+    flex:1;
+  }
+  .card-bottom{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    margin-top:22px;
+    padding-top:14px;
+    border-top:1px dashed var(--paper-shadow);
+  }
+  .stamp{
+    font-family:'Space Mono',monospace;
+    font-size:11px;
+    color:var(--rust);
+    border:2px solid var(--rust);
+    padding:5px 9px;
+    border-radius:3px;
+    transform:rotate(-6deg);
+    letter-spacing:.06em;
+    opacity:0;
+    animation: stampIn .35s ease-out .12s forwards;
+  }
+  @keyframes stampIn{
+    0%{ opacity:0; transform:rotate(-6deg) scale(1.7); }
+    60%{ opacity:1; }
+    100%{ opacity:1; transform:rotate(-6deg) scale(1); }
+  }
+  .card-date{
+    font-family:'Space Mono',monospace;
+    font-size:11px;
+    color:#8d9a8f;
+  }
+
+  .card.flip{
+    animation: draw .42s cubic-bezier(.2,.7,.3,1);
+  }
+  @keyframes draw{
+    0%{ transform: translateY(10px) rotate(-1.2deg) scaleY(.97); opacity:.4; }
+    100%{ transform: translateY(0) rotate(0) scaleY(1); opacity:1; }
+  }
+
+  .controls{
+    display:flex;
+    gap:12px;
+    margin-top:28px;
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+  button.action{
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size:13.5px;
+    padding:12px 22px;
+    border-radius:6px;
+    border:1px solid transparent;
+    cursor:pointer;
+    transition:transform .12s ease, background .15s ease, border-color .15s ease;
+  }
+  button.action:active{ transform:scale(.97); }
+  .btn-primary{
+    background:var(--brass);
+    color:#241a0c;
+  }
+  .btn-primary:hover{ background:var(--brass-light); }
+  .btn-secondary{
+    background:transparent;
+    color:var(--paper);
+    border-color:var(--ink-line);
+  }
+  .btn-secondary:hover{ border-color:var(--brass); color:var(--brass-light); }
+
+  :focus-visible{
+    outline:2px solid var(--brass-light);
+    outline-offset:2px;
+  }
+
+  footer{
+    margin-top:34px;
+    font-family:'Space Mono',monospace;
+    font-size:11px;
+    color:#5f7276;
+    text-align:center;
+    max-width:460px;
+  }
+
+  @media (max-width:640px){
+    .catalog{ flex-direction:column; }
+    .drawers{
+      flex-direction:row;
+      overflow-x:auto;
+      max-height:none;
+      border-radius:10px 10px 0 0;
+      border-right:1px solid var(--ink-line);
+      border-bottom:none;
+      white-space:nowrap;
+      padding:8px 6px;
+    }
+    .drawer-label{ display:none; }
+    .drawer-btn{ border-left:none; border-bottom:3px solid transparent; padding:8px 12px; }
+    .drawer-btn.active{ border-bottom-color:var(--brass); }
+    .drawer-count{ float:none; margin-left:4px; }
+    .stage{ border-radius:0 0 10px 10px; padding:28px 18px 26px; min-height:auto; }
+    .card{ padding:28px 20px 22px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .card.flip, .stamp{ animation:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Catalog of Everything Worth Knowing</div>
+  <h1>Random<span class="accent">23</span></h1>
+  <div class="tagline">Pull a card. Wherever it lands — physics, myth, empire, mind — that's today's dig.</div>
+</header>
+
+<div class="catalog">
+  <nav class="drawers" id="drawers" aria-label="Subject drawers">
+    <div class="drawer-label">Drawers</div>
+    <!-- filled by JS -->
+  </nav>
+
+  <div class="stage">
+    <div class="rod" aria-hidden="true"></div>
+    <div class="card" id="card">
+      <div class="card-top">
+        <span class="card-cat" id="cardCat">—</span>
+        <span class="card-no" id="cardNo">No. 000</span>
+      </div>
+      <div class="card-title" id="cardTitle">Ready when you are</div>
+      <div class="card-prompt" id="cardPrompt">Press "Draw a card" for a fresh random topic from any drawer.</div>
+      <div class="card-bottom">
+        <span class="card-date" id="cardDate"></span>
+        <span class="stamp" id="cardStamp" style="display:none;">DRAWN</span>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="action btn-primary" id="shuffle">Draw a card</button>
+    </div>
+  </div>
+</div>
+
+<footer>Every draw is fully random — open the file anytime, with anyone, and the odds of pulling the same card are as low as the drawer you're pulling from.</footer>
+
+<script>
+const TOPICS = [
+{c:"Philosophy", t:"The Ship of Theseus", p:"If every plank of a ship is replaced over time, is it still the same ship? Argue your position."},
+{c:"Philosophy", t:"The Trolley Problem", p:"Explain the dilemma in your own words, then say where you land and why."},
+{c:"Philosophy", t:"Plato's Allegory of the Cave", p:"Describe what the cave says about perception versus reality."},
+{c:"Philosophy", t:"The Is-Ought Problem", p:"Explain why you can't logically derive what 'ought' to be from what simply 'is'."},
+{c:"Philosophy", t:"Nihilism", p:"Define it in one sentence, then give one honest argument for it and one against."},
+{c:"Philosophy", t:"Free Will vs. Determinism", p:"Explain the core tension between the two, without picking a side yet."},
+{c:"Philosophy", t:"Occam's Razor", p:"Explain the principle, then describe one situation where it actually leads you astray."},
+{c:"Philosophy", t:"The Chinese Room", p:"Explain what this thought experiment argues about whether machines can 'understand'."},
+{c:"Philosophy", t:"Stoicism", p:"Summarize its core practice in plain, modern language — no togas required."},
+{c:"Philosophy", t:"Existentialism", p:"Explain what 'existence precedes essence' actually means."},
+
+{c:"History", t:"The Fall of the Western Roman Empire", p:"Name three contributing causes and rank them by how much you think they mattered."},
+{c:"History", t:"The Library of Alexandria", p:"Explain its significance, and what's actually known (vs. myth) about how it was lost."},
+{c:"History", t:"The Silk Road", p:"Name two things that traveled along it besides silk."},
+{c:"History", t:"The Black Death", p:"Explain one lasting way it reshaped European society afterward."},
+{c:"History", t:"The Printing Press", p:"Explain why Gutenberg's invention mattered for more than just books."},
+{c:"History", t:"The Columbian Exchange", p:"Name one item that moved each direction across the Atlantic and its long-term impact."},
+{c:"History", t:"The Peace of Westphalia", p:"Explain why historians tie it to the modern idea of the nation-state."},
+{c:"History", t:"The Bronze Age Collapse", p:"Explain what's mysterious about it — why civilizations fell all at once."},
+{c:"History", t:"The Haitian Revolution", p:"Explain what it achieved and why it's often left out of the story of that era."},
+{c:"History", t:"The Non-Aligned Movement", p:"Explain what it was trying to do during the Cold War."},
+
+{c:"Politics", t:"Separation of Powers", p:"Explain why it exists, then name one modern strain it's under."},
+{c:"Politics", t:"First-Past-the-Post vs. Proportional Representation", p:"Explain the core tradeoff between the two voting systems."},
+{c:"Politics", t:"The Tragedy of the Commons", p:"Explain the concept and give one real, modern example."},
+{c:"Politics", t:"Sovereignty", p:"Define it, then name one place in the world where it's genuinely contested today."},
+{c:"Politics", t:"The Overton Window", p:"Explain how it shapes what politicians feel able to say."},
+{c:"Politics", t:"Federalism", p:"Explain the balance it tries to strike between central and local power."},
+{c:"Politics", t:"The Social Contract", p:"Summarize one philosopher's version of it — Hobbes, Locke, or Rousseau."},
+{c:"Politics", t:"Gerrymandering", p:"Explain how it works well enough to explain it to a 12-year-old."},
+{c:"Politics", t:"Soft Power vs. Hard Power", p:"Explain the difference and give an example of each."},
+{c:"Politics", t:"The Security Dilemma", p:"Explain why arms races can happen even when no side actually wants war."},
+
+{c:"Biology", t:"CRISPR", p:"Explain what it does and why it's different from older genetic engineering."},
+{c:"Biology", t:"Convergent Evolution", p:"Give one example of unrelated species independently evolving a similar trait."},
+{c:"Biology", t:"The Human Microbiome", p:"Explain why the bacteria in your gut matter to more than digestion."},
+{c:"Biology", t:"Horizontal Gene Transfer", p:"Explain how bacteria can share genes without reproducing."},
+{c:"Biology", t:"Telomeres", p:"Explain their link to aging in plain terms."},
+{c:"Biology", t:"Photosynthesis", p:"Explain the basic energy conversion in one clear paragraph."},
+{c:"Biology", t:"Epigenetics", p:"Explain how environment can change gene expression without changing the DNA itself."},
+{c:"Biology", t:"The Cambrian Explosion", p:"Explain why it puzzled Darwin so much."},
+{c:"Biology", t:"Mitochondrial Eve", p:"Explain what this term actually means (it's not what it sounds like)."},
+{c:"Biology", t:"Prions", p:"Explain what makes them different from viruses and bacteria."},
+
+{c:"Geography", t:"Plate Tectonics", p:"Explain how it accounts for both earthquakes and mountain ranges."},
+{c:"Geography", t:"The Aral Sea", p:"Explain what happened to it and why."},
+{c:"Geography", t:"Time Zones", p:"Explain why some countries use 30- or 45-minute offsets instead of full hours."},
+{c:"Geography", t:"The Ring of Fire", p:"Explain what it is and why so much volcanic activity happens there."},
+{c:"Geography", t:"Landlocked Countries", p:"Explain one economic challenge they typically face."},
+{c:"Geography", t:"The Amazon Rainforest", p:"Explain its role in global weather patterns, beyond just producing oxygen."},
+{c:"Geography", t:"Exclaves and Enclaves", p:"Explain the difference between the two, with an example of each."},
+{c:"Geography", t:"The Thwaites Glacier", p:"Explain why scientists nicknamed it the 'Doomsday Glacier.'"},
+{c:"Geography", t:"Monsoon Systems", p:"Explain what actually causes a monsoon."},
+{c:"Geography", t:"Disputed Borders", p:"Pick one disputed border in the world and explain the root of the dispute."},
+
+{c:"Psychology", t:"Cognitive Dissonance", p:"Explain it using an everyday example, not a textbook one."},
+{c:"Psychology", t:"The Bystander Effect", p:"Explain why more witnesses can sometimes mean less help, not more."},
+{c:"Psychology", t:"Confirmation Bias", p:"Explain how it shapes which news sources people trust."},
+{c:"Psychology", t:"Classical vs. Operant Conditioning", p:"Explain the difference between the two with one example each."},
+{c:"Psychology", t:"The Dunning-Kruger Effect", p:"Explain what it actually claims — and one common way people misuse it."},
+{c:"Psychology", t:"Attachment Theory", p:"Explain the main attachment styles in plain language."},
+{c:"Psychology", t:"The Marshmallow Test", p:"Explain what it originally claimed, and why later research complicated it."},
+{c:"Psychology", t:"Flow State", p:"Explain the conditions that tend to produce it."},
+{c:"Psychology", t:"Groupthink", p:"Explain how it leads groups to make worse decisions than individuals would."},
+{c:"Psychology", t:"The Placebo Effect", p:"Explain what it reveals about the link between mind and body."},
+
+{c:"Physics & Cosmos", t:"Entropy", p:"Explain the second law of thermodynamics without using the word 'disorder.'"},
+{c:"Physics & Cosmos", t:"Dark Matter", p:"Explain why scientists believe it exists despite never directly observing it."},
+{c:"Physics & Cosmos", t:"Quantum Entanglement", p:"Explain it without using the word 'spooky.'"},
+{c:"Physics & Cosmos", t:"Special Relativity", p:"Explain why a clock moving relative to you appears to run slow."},
+{c:"Physics & Cosmos", t:"Black Holes", p:"Explain what an event horizon actually is."},
+{c:"Physics & Cosmos", t:"The Fermi Paradox", p:"Explain the contradiction it points out about alien life."},
+{c:"Physics & Cosmos", t:"Superconductivity", p:"Explain what makes a material superconduct."},
+{c:"Physics & Cosmos", t:"The Big Bang", p:"Explain one piece of evidence that supports it."},
+{c:"Physics & Cosmos", t:"Wave-Particle Duality", p:"Explain what the double-slit experiment implies about light."},
+{c:"Physics & Cosmos", t:"Cosmological Redshift", p:"Explain how astronomers use it to show the universe is expanding."},
+
+{c:"Mathematics", t:"Gödel's Incompleteness Theorems", p:"Explain, in plain language, what they say about any formal system of logic."},
+{c:"Mathematics", t:"The Monty Hall Problem", p:"Explain why switching doors is actually the better strategy."},
+{c:"Mathematics", t:"Prime Numbers", p:"Explain, informally, why there must be infinitely many of them."},
+{c:"Mathematics", t:"Fractals", p:"Explain what 'self-similarity' means using a real-world example."},
+{c:"Mathematics", t:"The Birthday Paradox", p:"Explain why just 23 people in a room gives roughly 50/50 odds of a shared birthday."},
+{c:"Mathematics", t:"Zeno's Paradox of Achilles and the Tortoise", p:"Explain the paradox, and where the flaw in the reasoning actually is."},
+{c:"Mathematics", t:"Nash Equilibrium", p:"Explain the concept with a simple two-player example."},
+{c:"Mathematics", t:"Imaginary Numbers", p:"Explain what real problem they were invented to solve."},
+{c:"Mathematics", t:"The Four Color Theorem", p:"Explain what it claims about coloring any map."},
+{c:"Mathematics", t:"Bayes' Theorem", p:"Explain, in plain terms, how it updates a belief when new evidence arrives."},
+
+{c:"Mythology & Religion", t:"The Epic of Gilgamesh", p:"Explain why it's considered the oldest known great story."},
+{c:"Mythology & Religion", t:"Ragnarok", p:"Explain what the myth describes happening, and why."},
+{c:"Mythology & Religion", t:"The Trickster Archetype", p:"Explain why so many unrelated mythologies have a trickster figure."},
+{c:"Mythology & Religion", t:"Syncretism", p:"Explain how religions blend together, with one real example."},
+{c:"Mythology & Religion", t:"The Oracle of Delphi", p:"Explain the Oracle's real role in ancient Greek politics, not just prophecy."},
+{c:"Mythology & Religion", t:"Dharma", p:"Explain the concept across Hindu and Buddhist thought."},
+{c:"Mythology & Religion", t:"Flood Myths", p:"Explain why versions of a 'great flood' story appear across unrelated cultures."},
+{c:"Mythology & Religion", t:"Anansi the Spider", p:"Explain his role in West African and Caribbean folklore."},
+{c:"Mythology & Religion", t:"The Tower of Babel", p:"Explain how the story is usually interpreted."},
+{c:"Mythology & Religion", t:"Psychopomps", p:"Explain what this mythological role is, and name one figure who fills it."},
+
+{c:"Economics", t:"Comparative Advantage", p:"Explain why trade can benefit both sides even if one is better at everything."},
+{c:"Economics", t:"Inflation", p:"Explain the difference between demand-pull and cost-push inflation."},
+{c:"Economics", t:"The Prisoner's Dilemma", p:"Explain why rational self-interest can leave both players worse off."},
+{c:"Economics", t:"Opportunity Cost", p:"Explain it using an actual decision from your own week."},
+{c:"Economics", t:"Moral Hazard", p:"Explain the concept with a real-world example."},
+{c:"Economics", t:"GDP", p:"Explain one important thing GDP fails to capture about a country's wellbeing."},
+{c:"Economics", t:"Stagflation", p:"Explain why it stumped economists when it hit in the 1970s."},
+{c:"Economics", t:"Price Elasticity", p:"Explain what makes a good 'inelastic,' with an example."},
+{c:"Economics", t:"Microfinance", p:"Explain the idea behind it, and one honest criticism of it."},
+{c:"Economics", t:"The Gini Coefficient", p:"Explain what it actually measures."},
+
+{c:"Linguistics", t:"The Sapir-Whorf Hypothesis", p:"Explain what it claims about language shaping thought."},
+{c:"Linguistics", t:"Language Death", p:"Explain why a language falls out of use somewhere in the world every few weeks."},
+{c:"Linguistics", t:"Phonemes", p:"Explain the difference between a phoneme and a letter."},
+{c:"Linguistics", t:"Code-Switching", p:"Explain why bilingual speakers switch languages mid-conversation."},
+{c:"Linguistics", t:"The Great Vowel Shift", p:"Explain how it changed English pronunciation over a few centuries."},
+{c:"Linguistics", t:"Pidgins and Creoles", p:"Explain the difference between the two."},
+{c:"Linguistics", t:"False Cognates", p:"Give one example of a false cognate between two languages."},
+{c:"Linguistics", t:"Grammatical Gender", p:"Explain how it can subtly shape perception, with an example."},
+{c:"Linguistics", t:"Proto-Indo-European", p:"Explain what linguists reconstruct about this ancestral language, and how."},
+{c:"Linguistics", t:"Onomatopoeia Across Languages", p:"Explain why the same animal sound is spelled so differently across languages."}
+];
+
+const drawersEl = document.getElementById('drawers');
+const cardEl = document.getElementById('card');
+const cardCat = document.getElementById('cardCat');
+const cardTitle = document.getElementById('cardTitle');
+const cardPrompt = document.getElementById('cardPrompt');
+const cardNo = document.getElementById('cardNo');
+const cardDate = document.getElementById('cardDate');
+const cardStamp = document.getElementById('cardStamp');
+
+let activeDrawer = "All";
+let lastIndex = -1;
+
+// Build drawer buttons
+const categories = ["All", ...Array.from(new Set(TOPICS.map(t => t.c)))];
+categories.forEach(cat => {
+  const btn = document.createElement('button');
+  btn.className = 'drawer-btn' + (cat === "All" ? ' active' : '');
+  btn.dataset.cat = cat;
+  const count = cat === "All" ? TOPICS.length : TOPICS.filter(t => t.c === cat).length;
+  btn.innerHTML = `${cat}<span class="drawer-count">${count}</span>`;
+  btn.addEventListener('click', () => {
+    activeDrawer = cat;
+    document.querySelectorAll('.drawer-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+  drawersEl.appendChild(btn);
+});
+
+function pool() {
+  return activeDrawer === "All" ? TOPICS : TOPICS.filter(t => t.c === activeDrawer);
+}
+
+// True random draw, using crypto for better randomness than Math.random where available
+function randomIndex(length) {
+  if (window.crypto && window.crypto.getRandomValues) {
+    const arr = new Uint32Array(1);
+    window.crypto.getRandomValues(arr);
+    return arr[0] % length;
+  }
+  return Math.floor(Math.random() * length);
+}
+
+function renderCard(item, index) {
+  cardEl.classList.remove('flip');
+  void cardEl.offsetWidth; // restart animation
+  cardEl.classList.add('flip');
+
+  cardCat.textContent = item.c;
+  cardTitle.textContent = item.t;
+  cardPrompt.textContent = item.p;
+  cardNo.textContent = "No. " + String(index + 1).padStart(3, "0");
+
+  const today = new Date();
+  const dateStr = today.toLocaleDateString(undefined, { year:'numeric', month:'short', day:'numeric' });
+  cardDate.textContent = `Drawn · ${dateStr}`;
+
+  cardStamp.style.display = 'inline-block';
+  cardStamp.style.animation = 'none';
+  void cardStamp.offsetWidth;
+  cardStamp.style.animation = null;
+}
+
+document.getElementById('shuffle').addEventListener('click', () => {
+  const p = pool();
+  let idx;
+  do { idx = randomIndex(p.length); } while (p.length > 1 && idx === lastIndex);
+  lastIndex = idx;
+  const item = p[idx];
+  const globalIndex = TOPICS.indexOf(item);
+  renderCard(item, globalIndex);
+});
+</script>
+
+</body>
+</html>
